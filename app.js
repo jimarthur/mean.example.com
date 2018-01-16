@@ -7,11 +7,14 @@ var bodyParser = require('body-parser');
 
 var mongoose = require('mongoose');
 var passport = require('passport');
+var GitHubStrategy = require('passport-github');
 var LocalStrategy = require('passport-local').Strategy;
 
 var index = require('./routes/index');
 var users = require('./routes/users');
+var auth = require('./routes/auth');
 var apiUsers = require('./routes/api/users');
+var apiPosts = require('./routes/api/posts');
 
 var app = express();
 
@@ -27,12 +30,26 @@ app.use(logger('dev'));
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
 
+
 app.use(cookieParser());
 
+var session  = require('express-session');
+var MongoStore = require('connect-mongo')(session);
+
+
+
 app.use(require('express-session')({
+  store: new MongoStore({ mongooseConnection: mongoose.connection }),
   secret:'.?Qn28B>s|A{Vz~(w;hX;8v3Us$\H;[)|8(KH(HUNaW<*;:AI@h{`&pA~o|&uAj',
   resave: false,
-  saveUninitialized: false
+  saveUninitialized: false,
+  cookie: {
+    psth: '/',
+    domain: 'localhost',
+    //httpOnly: true
+    //secure: true
+    maxAge: 1000 * 60 * 24 //24 hours
+  }
 }));
 app.use(passport.initialize());
 app.use(passport.session());
@@ -41,8 +58,45 @@ app.use(express.static(path.join(__dirname, 'public')));
 
 passport.use(User.createStrategy());
 
+passport.use(new GitHubStrategy({
+  clientID:'e10c26fff4299c571517',
+  clientSecret:'bab18cf57040db2748314829d066a8828ba9ce96',
+  callbackURL: 'http://localhost:3000/auth/github/callback'
+  },
+  function(accessToken, refreshToken, profile, cb){
+
+    User.findOne({"githubData.id":parseInt(profile.id)}, function (err, user) {
+      if(err) {
+        return done(err);
+      }
+
+      if(user) {
+        return cb(err, user);
+      } else{
+        var newUser = new User();
+        newUser.githubData = profile._json;
+
+        //When creating from a third party skip validation as we no not want to
+        //try and guess those fields
+        //
+        newUser.save({ validateBeforeSave: false}, function(err){
+
+          if(err) {
+            throw err;
+          }
+
+          return cb(err, newUser);
+
+        });
+      }
+
+    });
+
+  })
+);
+
 passport.serializeUser(function(user, done){
-  done(null, {
+  return done(null, {
     id: user._id,
     username: user.username,
     email: user.email,
@@ -52,17 +106,26 @@ passport.serializeUser(function(user, done){
 });
 
 passport.deserializeUser(function(user, done){
-  done(null, user);
+  return done(null, user);
 });
-
+//Connect to MongoDB
 mongoose.connect('mongodb://localhost/bootcamp');
 
 //Create the session
 app.use(function(req, res, next){
-  var userSession='';
+
+  var userSession={};
+
   if(req.isAuthenticated()){
     userSession = req.session.passport.user;
   }
+
+  req.app.locals = {
+    session: {
+      user: userSession
+    }
+  }
+
   next();
 });
 
@@ -72,7 +135,9 @@ app.use(function(req,res,next){
     '/',
     '/public',
     '/users/login',
-    '/users/register'
+    '/users/register',
+    '/api/users/register',
+    '/auth/github'
   ];
 
   if(whitelist.indexOf(req.url) !== -1){
@@ -80,22 +145,29 @@ app.use(function(req,res,next){
   }
 
   //Allow access to blog posts
-  var postView = '/posts/view/';
-  if(req.url.substring(0, postView.length)===postView){
-    return next();
+  var subs = [
+    '/posts/view/',
+    '/auth/github/callback'
+  ];
+
+  for(var sub of subs){
+    if(req.url.substring(0, sub.length)===sub){
+      return next();
+    }
   }
 
   if(req.isAuthenticated()){
     return next();
   }
 
-  return res.redirect('/');
+  return res.redirect('/users/login');
 });
 
 app.use('/', index);
 app.use('/users', users);
+app.use('/auth', auth);
 app.use('/api/users', apiUsers);
-
+app.use('/api/posts', apiPosts);
 // catch 404 and forward to error handler
 app.use(function(req, res, next) {
   var err = new Error('Not Found');
