@@ -1,6 +1,6 @@
 body {
   padding: 50px;
-  font: 20px "Lucida Grande", Helvetica, Arial, sans-serif;
+  font: 12px "Lucida Grande", Helvetica, Arial, sans-serif;
 }
 
 a {
@@ -15,16 +15,16 @@ a {
 
 .table td,
 .table th {
-  border: 1px solid #ddd;
+  border: 5px solid #ffffff;
   padding: 8px;
 }
 
 .table tbody tr:nth-child(even){
-  background-color: #f2f2f2;
+  background-color: #e5e5e5;
 }
 
 .table tbody tr:hover {
-  background-color: #ddd;
+  background-color: #f5d2c3;
 }
 
 .table tbody th {
@@ -37,13 +37,14 @@ label {
 }
 
 input[type="text"],
-input[type="password"] {
+input[type="password"],
+textarea {
   font: 20px monospace;
   padding: 12px 20px;
   margin: .5em 0 1em;
   display: inline-block;
   border: 1px solid #ccc;
-  border-radius: 4px;
+  border-radius: 10px;
   box-sizing: border-box;
   width: 100%;
 }
@@ -51,11 +52,14 @@ input[type="password"] {
 input[type="submit"],
 button {
   padding: 12px 18px;
-  font: 20px monospace;
+  border-radius: 20px;
+  font: 14px monospace;
+  color: #fff;
+  background: #44cc44;
 }
 
 a.button {
-  font: 20px monospace;
+  font: 14px monospace;
   padding: 12px 18px;
   text-decoration: none;
   color: #000;
