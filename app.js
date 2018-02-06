@@ -5,6 +5,8 @@ var logger = require('morgan');
 var cookieParser = require('cookie-parser');
 var bodyParser = require('body-parser');
 
+var config = require('../config.js');
+
 var mongoose = require('mongoose');
 var passport = require('passport');
 var GitHubStrategy = require('passport-github');
@@ -20,6 +22,9 @@ var apiPosts = require('./routes/api/posts');
 var app = express();
 
 var User = require('./models/user');
+
+//Connect ot MongoDB
+mongoose.connect(config.mongodb);
 
 // view engine setup
 app.set('views', path.join(__dirname, 'views'));
@@ -58,6 +63,21 @@ app.use(passport.session());
 app.use(express.static(path.join(__dirname, 'public')));
 
 passport.use(User.createStrategy());
+
+//Set up CORS and proper
+app.use(function(req, res, next) {
+    res.header('Access-Control-Allow-Credentials', true);
+    res.header("Access-Control-Allow-Origin", "*");
+    res.header('Access-Control-Allow-Methods', 'GET,PUT,POST,DELETE');
+    res.header('Access-Control-Allow-Headers', 'Origin, X-Requested-With, X-HTTP-Method-Override, Content-Type, Accept');
+
+    if ('OPTIONS' == req.method) {
+         res.send(200);
+     } else {
+         next();
+     }
+
+});
 
 passport.use(new GitHubStrategy({
   clientID:'e10c26fff4299c571517',
@@ -110,7 +130,7 @@ passport.deserializeUser(function(user, done){
   return done(null, user);
 });
 //Connect to MongoDB
-mongoose.connect('mongodb://localhost/bootcamp');
+//mongoose.connect('mongodb://localhost/bootcamp');
 
 //Create the session
 app.use(function(req, res, next){
@@ -161,7 +181,11 @@ app.use(function(req,res,next){
     return next();
   }
 
-  return res.redirect('/users/login');
+  return next();
+
+// rex.status(401);
+// return res.send('unauthorized');
+//  return res.redirect('/users/login');
 });
 
 app.use('/', index);
