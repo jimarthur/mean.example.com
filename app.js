@@ -82,7 +82,7 @@ app.use(function(req, res, next) {
 passport.use(new GitHubStrategy({
   clientID:'e10c26fff4299c571517',
   clientSecret:'bab18cf57040db2748314829d066a8828ba9ce96',
-  callbackURL: 'http://localhost:3000/auth/github/callback'
+  callbackURL: 'https://arthur.media/auth/github/callback'
   },
   function(accessToken, refreshToken, profile, cb){
 
@@ -181,11 +181,11 @@ app.use(function(req,res,next){
     return next();
   }
 
-  return next();
+//  return next();
 
 // rex.status(401);
 // return res.send('unauthorized');
-//  return res.redirect('/users/login');
+    return res.redirect('/users/login');
 });
 
 app.use('/', index);
