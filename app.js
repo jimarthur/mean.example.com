@@ -46,12 +46,12 @@ var MongoStore = require('connect-mongo')(session);
 
 app.use(require('express-session')({
   store: new MongoStore({ mongooseConnection: mongoose.connection }),
-  secret:'.?Qn28B>s|A{Vz~(w;hX;8v3Us$\H;[)|8(KH(HUNaW<*;:AI@h{`&pA~o|&uAj',
+  secret: config.secret,
   resave: false,
   saveUninitialized: false,
   cookie: {
     psth: '/',
-    domain: 'localhost',
+    domain: config.cookie.domain,
     //httpOnly: true
     //secure: true
     maxAge: 1000 * 60 * 24 //24 hours
@@ -80,9 +80,9 @@ app.use(function(req, res, next) {
 });
 
 passport.use(new GitHubStrategy({
-  clientID:'e10c26fff4299c571517',
-  clientSecret:'bab18cf57040db2748314829d066a8828ba9ce96',
-  callbackURL: 'https://arthur.media/auth/github/callback'
+  clientID:config.gitHub.clientID,
+  clientSecret:config.gitHub.clientSecret,
+  callbackURL:config.gitHub.callbackURL
   },
   function(accessToken, refreshToken, profile, cb){
 
