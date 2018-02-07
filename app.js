@@ -19,6 +19,7 @@ var auth = require('./routes/auth');
 var apiUsers = require('./routes/api/users');
 var apiPosts = require('./routes/api/posts');
 var helmet = require('helmet');
+var compression = require('compression');
 
 var app = express();
 var User = require('./models/user');
@@ -27,6 +28,10 @@ var User = require('./models/user');
 mongoose.connect(config.mongodb);
 
 app.use(helmet());
+
+///hardens the server
+app.use(compression());
+
 // view engine setup
 app.set('views', path.join(__dirname, 'views'));
 app.set('view engine', 'pug');
