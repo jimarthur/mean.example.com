@@ -3,15 +3,17 @@
   "version": "0.0.0",
   "private": true,
   "scripts": {
-    "start": "node ./bin/www"
+    "start": "node ./bin/www",
+    "test": "snyk test"
   },
   "dependencies": {
     "body-parser": "~1.18.2",
     "connect-mongo": "^2.0.1",
     "cookie-parser": "~1.4.3",
     "debug": "~2.6.9",
-    "express": "~4.15.5",
+    "express": "^4.16.0",
     "express-session": "^1.15.6",
+    "helmet": "^3.10.0",
     "mongoose": "^4.13.9",
     "mongoose-unique-validator": "^1.0.6",
     "morgan": "~1.9.0",
@@ -22,5 +24,8 @@
     "pug": "2.0.0-beta11",
     "serve-favicon": "~2.4.5",
     "slug": "^0.9.1"
+  },
+  "devDependencies": {
+    "snyk": "^1.69.6"
   }
 }

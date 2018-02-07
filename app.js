@@ -18,14 +18,15 @@ var posts = require('./routes/posts');
 var auth = require('./routes/auth');
 var apiUsers = require('./routes/api/users');
 var apiPosts = require('./routes/api/posts');
+var helmet = require('helmet');
 
 var app = express();
-
 var User = require('./models/user');
 
 //Connect ot MongoDB
 mongoose.connect(config.mongodb);
 
+app.use(helmet());
 // view engine setup
 app.set('views', path.join(__dirname, 'views'));
 app.set('view engine', 'pug');
@@ -52,8 +53,8 @@ app.use(require('express-session')({
   cookie: {
     psth: '/',
     domain: config.cookie.domain,
-    //httpOnly: true
-    //secure: true
+    httpOnly: true,
+    secure: true,
     maxAge: 1000 * 60 * 24 //24 hours
   }
 }));
